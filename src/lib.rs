@@ -1,3 +1,10 @@
+use std::{thread::sleep, time::Duration};
+
 pub fn run() {
-    println!("Hello, world2222!");
+    loop {
+        println!("Hello, world2222!");
+
+        sleep(Duration::from_secs(5));
+        break;
+    }
 }
