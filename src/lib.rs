@@ -24,9 +24,21 @@ pub fn run() {
             }
         };
 
-        println!("You entered: {}", input.trim());
+        println!("You entered: {}", input.trim().to_lowercase());
 
-        // sleep(Duration::from_secs(5));
-        break;
+        match input.trim().to_lowercase().as_str() {
+            "v" => println!("Viewing all todos..."),
+            "a" => println!("Adding a todo..."),
+            "d" => println!("Deleting a todo..."),
+            "u" => println!("Updating a todo..."),
+            "q" => {
+                println!("Exiting the app. Goodbye!");
+                break;
+            }
+            _ => {
+                initial_text = "Invalid command! Please try again.";
+                continue;
+            }
+        }
     }
 }
