@@ -11,7 +11,10 @@ pub struct FileHandler {
 
 impl FileHandler {
     pub fn new() -> Self {
-        FileHandler { file: None, file_path: Path::new("todo_data.json") }
+        FileHandler {
+            file: None,
+            file_path: Path::new("todo_data.json"),
+        }
     }
     pub fn open_file(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
         let file_result: Result<File, io::Error> = File::open(self.file_path);
@@ -42,6 +45,16 @@ impl FileHandler {
                 Ok(())
             }
             Err(e) => Err(Box::new(e)),
+        }
+    }
+
+    pub fn get_file(&mut self) -> Result<&mut File, Box<dyn std::error::Error>> {
+        match self.file.as_mut() {
+            Some(file) => Ok(file),
+            None => Err(Box::new(io::Error::new(
+                io::ErrorKind::NotFound,
+                "File not found",
+            ))),
         }
     }
 }
