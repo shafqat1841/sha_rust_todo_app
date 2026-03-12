@@ -1,0 +1,1 @@
+pub const FILE_PATH: &'static str = "todo_data.json";
