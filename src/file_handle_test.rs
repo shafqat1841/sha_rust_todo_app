@@ -49,36 +49,3 @@ pub fn file_test() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-pub fn file_test2() -> Result<(), Box<dyn std::error::Error>> {
-    println!("FILE_PATH: {}", FILE_PATH);
-    let does_file_exist = fs::exists(FILE_PATH)?;
-
-    if does_file_exist {
-        println!("File exists: {}", does_file_exist);
-
-        let contents = fs::read_to_string(FILE_PATH)?;
-
-        println!("File contents: {}", contents);
-
-        let mut json_value = serde_json::from_str::<Vec<Person>>(&contents)?;
-        println!("Parsed JSON: {:?}", json_value);
-
-        json_value.push(Person {
-            name: "John Doe".to_string(),
-            age: 30,
-        });
-
-        println!("Parsed JSON with new entry: {:?}", json_value);
-
-        let json_string = serde_json::to_string_pretty(&json_value)?;
-        fs::write(FILE_PATH, json_string)?;
-
-        return Ok(());
-    } else {
-        println!("File exists: {}", does_file_exist);
-        let mut file = File::create(FILE_PATH)?;
-        file.write_all(b"[]")?;
-        return Ok(());
-    }
-}
