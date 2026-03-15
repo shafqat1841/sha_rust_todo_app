@@ -1,60 +1,31 @@
 use std::{
-    fs::File,
+    fs::{File, OpenOptions},
     io::{self, ErrorKind},
     path::Path,
 };
 
+use crate::app_constants::FILE_PATH;
+
 pub struct FileHandler {
-    file: Option<File>,
+    file: File,
     file_path: &'static Path,
 }
 
 impl FileHandler {
-    pub fn new() -> Self {
-        FileHandler {
-            file: None,
-            file_path: Path::new("todo_data.json"),
-        }
-    }
-    pub fn open_file(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
-        let file_result: Result<File, io::Error> = File::open(self.file_path);
+    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        let file_path = Path::new(FILE_PATH);
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(file_path)?;
 
-        match file_result {
-            Ok(file) => {
-                println!("File opened successfully!");
-                self.file = Some(file);
-                Ok(())
-            }
-            Err(e) => match e.kind() {
-                ErrorKind::NotFound => {
-                    self.create_file()?;
-                    Ok(())
+            Ok(
+                
+                FileHandler {
+                    file,
+                    file_path,
                 }
-                _ => Err(Box::new(e)),
-            },
-        }
-    }
-
-    pub fn create_file(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
-        let file_result: Result<File, io::Error> = File::create(self.file_path);
-
-        match file_result {
-            Ok(file) => {
-                println!("File created and opened successfully!");
-                self.file = Some(file);
-                Ok(())
-            }
-            Err(e) => Err(Box::new(e)),
-        }
-    }
-
-    pub fn get_file(&mut self) -> Result<&mut File, Box<dyn std::error::Error>> {
-        match self.file.as_mut() {
-            Some(file) => Ok(file),
-            None => Err(Box::new(io::Error::new(
-                io::ErrorKind::NotFound,
-                "File not found",
-            ))),
-        }
+            )
     }
 }
