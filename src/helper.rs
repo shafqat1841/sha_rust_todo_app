@@ -79,7 +79,7 @@ pub fn serde_serialize_file(file: &mut File) -> Result<()> {
     // now we are asking it for a Person as output.
     println!("{}", buf);
     let p: Result<Person> = serde_json::from_str(&buf);
-    
+
     match p {
         Ok(_) => println!("File deserialized successfully!"),
         Err(e) => {
@@ -87,7 +87,7 @@ pub fn serde_serialize_file(file: &mut File) -> Result<()> {
             match e.classify() {
                 serde_json::error::Category::Io => {
                     println!("I/O error occurred.")
-                },
+                }
                 serde_json::error::Category::Syntax => println!("Syntax error in JSON."),
                 serde_json::error::Category::Data => println!("Data error during deserialization."),
                 serde_json::error::Category::Eof => println!("Unexpected end of JSON input."),
@@ -95,9 +95,13 @@ pub fn serde_serialize_file(file: &mut File) -> Result<()> {
             return Err(e);
         }
     }
-    
+
     // Do things just like with any other Rust data structure.
-    println!("Please call {} at the number {}", p.as_ref().unwrap().name, p.as_ref().unwrap().phones[0]);
+    println!(
+        "Please call {} at the number {}",
+        p.as_ref().unwrap().name,
+        p.as_ref().unwrap().phones[0]
+    );
 
     Ok(())
 }
@@ -119,4 +123,30 @@ pub fn serde_deserialize() {
 
     // Convert to a string of JSON and print it out
     println!("{}", john.to_string());
+}
+
+pub fn get_user_input() -> io::Result<String> {
+    let mut input: String = String::new(); // Create a string variable
+    let input_data = io::stdin().read_line(&mut input);
+
+    let input_data_ref = input_data.as_ref();
+
+    if input_data.is_err() {
+        let new_error = io::Error::new(
+            io::ErrorKind::Other,
+            format!("Error reading input: {}", input_data.err().unwrap()),
+        );
+        let err = Err(new_error);
+        return err
+    }
+
+    if input_data_ref.is_ok() && *input_data_ref.unwrap() == 2 {
+        let err = Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Empty command entered",
+        ));
+        return err;
+    }
+
+    Ok(input)
 }
