@@ -3,6 +3,7 @@ mod app_default_texts;
 mod file_handle_test;
 mod file_handler_system;
 mod helper;
+mod todos_system;
 
 use std::io;
 
@@ -38,7 +39,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         match input.trim().to_lowercase().as_str() {
             "v" => {
-                file_handler.view_all_todos();
+                file_handler.view_all_todos()?;
             }
             "a" => {
                 file_handler.add_todo();
