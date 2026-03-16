@@ -9,35 +9,32 @@ use std::io;
 
 use crate::app_default_texts::DefaultTexts;
 use crate::file_handler_system::FileHandler;
+use crate::helper::get_user_input;
 // use crate::helper::{ serde_deserialize, serde_serialize, serde_serialize_file};
 // use crate::file_handle_test::file_test;
-
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let file_handler = FileHandler::new()?;
     let mut default_texts = DefaultTexts::new();
-
 
     loop {
         if !default_texts.initial_text_viewed {
             println!("{}", default_texts.get_initial_text());
         }
 
-        let mut input: String = String::new(); // Create a string variable
-        match io::stdin().read_line(&mut input) {
-            Ok(n) => {
-                if n == 2 {
-                    println!("{}", default_texts.show_empty_command_text());
-                    continue;
-                }
-            }
-            Err(error) => {
-                println!("Error reading input: {}", error);
-                continue; // Skip the rest of the loop and start over
-            }
-        };
+        let input = get_user_input();
 
-        match input.trim().to_lowercase().as_str() {
+        if input.is_err() {
+            let input_ref = input.as_ref().err().unwrap();
+            match input_ref.kind() {
+                io::ErrorKind::InvalidInput =>  println!("{}", default_texts.show_empty_command_text()),
+                io::ErrorKind::Other => println!("Error reading input: {}", input_ref),
+                _ => println!("An unexpected error occurred: {}", input_ref),
+            }
+            continue;
+        }
+
+        match input.unwrap().trim().to_lowercase().as_str() {
             "v" => {
                 file_handler.view_all_todos()?;
             }
