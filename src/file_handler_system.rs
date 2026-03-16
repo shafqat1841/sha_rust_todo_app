@@ -1,14 +1,13 @@
 use std::{
     fs::{File, OpenOptions},
-    io::{self, ErrorKind},
+    io::BufReader,
     path::Path,
 };
 
-use crate::app_constants::FILE_PATH;
+use crate::{app_constants::FILE_PATH, todos_system::Todos};
 
 pub struct FileHandler {
     file: File,
-    file_path: &'static Path,
 }
 
 impl FileHandler {
@@ -20,25 +19,23 @@ impl FileHandler {
             .create(true)
             .open(file_path)?;
 
-        Ok(FileHandler { file, file_path })
+        Ok(FileHandler { file })
     }
 
-    pub fn view_all_todos(&self) {
-        // if todos.list.len() == 0 {
-        //     println!("");
-        //     println!("No todos found! Please add some todos to view them.");
-        //     println!("");
-        //     continue;
-        // }
-        // println!("Viewing all todos...");
-        // println!("Total todos: {}", todos.list.len());
-        // for todo in &todos.list {
-        //     println!(
-        //         "ID: {}, Description: {}, Completed: {}",
-        //         todo.id, todo.description, todo.completed
-        //     );
-        // }
-        println!("Viewing all todos...");
+    pub fn view_all_todos(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let meta_data = self.file.metadata()?;
+
+        if meta_data.len() == 0 {
+            println!("No todos found. Please add some todos first.");
+            return Ok(());
+        }
+
+        let reader = BufReader::new(&self.file);
+        let todo_data: Vec<Todos> = serde_json::from_reader(reader)?;
+
+        println!("All todos are the following:");
+        println!("{:#?}", todo_data);
+        Ok(())
     }
 
     pub fn add_todo(&self) {
