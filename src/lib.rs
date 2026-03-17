@@ -14,7 +14,7 @@ use crate::helper::get_user_input;
 // use crate::file_handle_test::file_test;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let file_handler = FileHandler::new()?;
+    let mut file_handler = FileHandler::new()?;
     let mut default_texts = DefaultTexts::new();
 
     loop {
