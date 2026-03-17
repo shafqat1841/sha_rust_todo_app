@@ -148,5 +148,5 @@ pub fn get_user_input() -> io::Result<String> {
         return err;
     }
 
-    Ok(input)
+    Ok(input.trim().to_string())
 }
