@@ -20,7 +20,7 @@ impl Todo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todos {
     todo_number: u32,
-    list: Vec<Todo>,
+    pub list: Vec<Todo>,
 }
 
 impl Todos {
