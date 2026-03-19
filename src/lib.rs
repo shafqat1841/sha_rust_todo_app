@@ -42,7 +42,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 file_handler.add_todo();
             }
             "d" => {
-                file_handler.delete_todo();
+                file_handler.delete_todo()?;
             }
             "u" => {
                 file_handler.update_todo();
