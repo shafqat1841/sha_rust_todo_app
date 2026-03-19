@@ -35,7 +35,13 @@ impl FileHandler {
         }
 
         println!("All todos are the following:");
-        println!("{:#?}", todo_data);
+        println!("");
+        for todo in todo_data.list {
+            println!("ID: {:#?}", todo.id);
+            println!("Description: {:#?}", todo.description);
+            println!("Is complete: {:#?}", todo.completed);
+            println!("");
+        }
         Ok(())
     }
 
@@ -120,8 +126,94 @@ impl FileHandler {
         }
     }
 
-    pub fn delete_todo(&self) {
-        println!("Deleting a todo...");
+    pub fn delete_todo(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.view_all_todos()?;
+
+        println!("Please enter the id of the todo which you want to delete:");
+        println!("Or type 'cancel' to go back:");
+
+        loop {
+            let id_result = get_user_input();
+
+            println!("id_result: {:?}", id_result);
+
+            let id = match id_result {
+                Ok(value) => {
+                    if value == "cancel" {
+                        println!("Canceling the process of removing a todo...");
+                        break;
+                    }
+                    let number = value.parse::<u32>();
+
+                    match number {
+                        Err(err) => {
+                            println!("the following error occured: {}", err);
+                            continue;
+                        }
+                        Ok(v) => {
+                            v
+                        }
+                    }
+                }
+                Err(err) => {
+                    println!("the following error occured: {}", err);
+                    continue;
+                }
+            };
+
+            let file = match File::open(self.file_path) {
+                Ok(f) => f,
+                Err(e) => {
+                    println!("Error: {}", e);
+                    continue;
+                }
+            };
+            let reader = BufReader::new(file);
+            let todos_data: serde_json::Result<Todos> = serde_json::from_reader(reader);
+
+            let mut todos = match todos_data {
+                Ok(value) => value,
+                Err(e) => {
+                    println!("Error: {}", e);
+                    continue;
+                }
+            };
+
+            todos.remove_todo(id);
+
+            let temp_path = self.file_path.with_extension("temp");
+            let temp_file_data = File::create(&temp_path);
+            let temp_file = match temp_file_data {
+                Ok(v) => v,
+                Err(e) => {
+                    println!("Error: {}", e);
+                    continue;
+                }
+            };
+            let writer = BufWriter::new(temp_file);
+            let serde_write_data = serde_json::to_writer_pretty(writer, &todos);
+
+            match serde_write_data {
+                Err(e) => {
+                    println!("Error: {}", e);
+                    continue;
+                }
+                Ok(_) => {}
+            };
+
+            let rename_data = fs::rename(&temp_path, self.file_path);
+
+            match rename_data {
+                Err(e) => {
+                    println!("Error: {}", e);
+                    continue;
+                }
+                Ok(_) => {}
+            };
+
+            break;
+        }
+        Ok(())
     }
 
     pub fn update_todo(&self) {
