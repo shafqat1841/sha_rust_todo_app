@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Todo {
-    id: u32,
-    description: String,
-    completed: bool,
+    pub id: u32,
+    pub description: String,
+    pub completed: bool,
 }
 
 impl Todo {
@@ -36,6 +36,13 @@ impl Todos {
     pub fn add_new_todo(&mut self, description: String) {
         self.todo_number = self.todo_number + 1;
         let new_todo = Todo::new(self.todo_number, description);
-        self.list.push(new_todo) 
+        self.list.push(new_todo)
+    }
+
+    pub fn remove_todo(&mut self, id: u32) {
+        // self.todo_number = self.todo_number + 1;
+        self.list.retain(|v|{
+            v.id != id
+        });
     }
 }
