@@ -27,7 +27,9 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         if input.is_err() {
             let input_ref = input.as_ref().err().unwrap();
             match input_ref.kind() {
-                io::ErrorKind::InvalidInput =>  println!("{}", default_texts.show_empty_command_text()),
+                io::ErrorKind::InvalidInput => {
+                    println!("{}", default_texts.show_empty_command_text())
+                }
                 io::ErrorKind::Other => println!("Error reading input: {}", input_ref),
                 _ => println!("An unexpected error occurred: {}", input_ref),
             }
@@ -36,16 +38,26 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         match input.unwrap().trim().to_lowercase().as_str() {
             "v" => {
-                file_handler.view_all_todos()?;
+                let res = file_handler.view_all_todos();
+                if res.is_err() {
+                    println!("following error occured: {:?}", res.err())
+                }
             }
             "a" => {
                 file_handler.add_todo();
             }
             "d" => {
-                file_handler.delete_todo()?;
+                let res = file_handler.delete_todo();
+                if res.is_err() {
+                    println!("following error occured: {:?}", res.err())
+                }
             }
             "u" => {
-                file_handler.update_todo()?;
+                let res = file_handler.update_todo();
+
+                if res.is_err() {
+                    println!("following error occured: {:?}", res.err())
+                }
             }
             "q" => {
                 // println!("Exiting the app. Goodbye!");
