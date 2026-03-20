@@ -299,7 +299,6 @@ impl FileHandler {
         println!("Or type 'cancel' to go back:");
 
         let marck_or_update = get_user_input()?;
-
         println!("marck_or_update: {:?}", marck_or_update);
 
         if marck_or_update == "cancel" {
@@ -308,18 +307,18 @@ impl FileHandler {
         }
         if marck_or_update == "m" {
             println!("Canceling the process of removing a todo...");
-            let done_undone_todo_result = self.done_undone_todo()?;
-            return Ok(done_undone_todo_result);
+            let res = self.done_undone_todo()?;
+            return Ok(res);
         }
         if marck_or_update == "u" {
             println!("Canceling the process of removing a todo...");
-            self.update_todo_description()?;
-            return Ok(());
+            let res = self.update_todo_description()?;
+            return Ok(res);
         }
 
         let new_error = io::Error::new(io::ErrorKind::InvalidData, "wrong command");
 
-        Err(Box::new(new_error))
+        return Err(Box::new(new_error));
     }
 
     pub fn quit(&self) {
