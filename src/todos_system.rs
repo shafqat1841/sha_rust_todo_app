@@ -45,4 +45,22 @@ impl Todos {
             v.id != id
         });
     }
+
+    pub fn done_undone_todo(&mut self, id: u32) {
+
+        for element in self.list.iter_mut() {
+            if element.id == id {
+                let complete_status = element.completed;
+                element.completed = !complete_status
+            }
+        }
+    }
+
+    pub fn update_todo_description(&mut self, new_id: u32, new_description: &str ){
+        for ele in self.list.iter_mut() {
+            if ele.id == new_id {
+                ele.description = new_description.to_string()
+            }
+        }
+    }
 }
