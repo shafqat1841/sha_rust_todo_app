@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::{BufReader, BufWriter},
+    io::{self, BufReader, BufWriter},
     path::Path,
 };
 
@@ -150,9 +150,7 @@ impl FileHandler {
                             println!("the following error occured: {}", err);
                             continue;
                         }
-                        Ok(v) => {
-                            v
-                        }
+                        Ok(v) => v,
                     }
                 }
                 Err(err) => {
@@ -216,8 +214,112 @@ impl FileHandler {
         Ok(())
     }
 
-    pub fn update_todo(&self) {
-        println!("Updating a todo...");
+    fn get_file_data(&self) -> Result<Todos, Box<dyn std::error::Error>> {
+        let file = File::open(self.file_path)?;
+
+        let reader = BufReader::new(file);
+        let todos: Todos = serde_json::from_reader(reader)?;
+
+        Ok(todos)
+    }
+
+    fn update_file_data(&self, data: &Todos) -> Result<(), Box<dyn std::error::Error>> {
+        let temp_path = self.file_path.with_extension("temp");
+        let temp_file = File::create(&temp_path)?;
+
+        let writer = BufWriter::new(temp_file);
+        serde_json::to_writer_pretty(writer, data)?;
+
+        let rename_data = fs::rename(&temp_path, self.file_path)?;
+
+        Ok(rename_data)
+    }
+
+    fn done_undone_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.view_all_todos()?;
+
+        println!("Enter the Id whose completed status you want to change");
+        println!("Or type 'cancel' to go back:");
+
+        let done_or_undone_id = get_user_input()?;
+
+        if done_or_undone_id == "cancel" {
+            println!("Canceling the process of removing a todo...");
+            return Ok(());
+        }
+
+        let id_number = done_or_undone_id.parse::<u32>()?;
+
+        let mut todos = self.get_file_data()?;
+
+        todos.done_undone_todo(id_number);
+
+        let res = self.update_file_data(&todos)?;
+
+        Ok(res)
+    }
+
+    fn update_todo_description(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.view_all_todos()?;
+
+        println!("Enter the Id whose description you want to change:");
+        println!("Or type 'cancel' to go back:");
+
+        let new_description_id = get_user_input()?;
+
+        if new_description_id == "cancel" {
+            println!("Canceling the process of removing a todo...");
+            return Ok(());
+        }
+
+        let id_number = new_description_id.parse::<u32>()?;
+
+        println!("Enter the new description:");
+        println!("Or type 'cancel' to go back:");
+
+        let new_description = get_user_input()?;
+
+        if new_description == "cancel" {
+            println!("Canceling the process of removing a todo...");
+            return Ok(());
+        }
+
+        let mut todos = self.get_file_data()?;
+
+        todos.update_todo_description(id_number, new_description.as_str());
+
+        let res = self.update_file_data(&todos)?;
+
+        Ok(res)
+    }
+
+    pub fn update_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        println!("If you want a todo to be marked as completed or uncompleted then press m:");
+        println!("If you want update a todo description press u:");
+        println!("Or type 'cancel' to go back:");
+
+        let marck_or_update = get_user_input()?;
+
+        println!("marck_or_update: {:?}", marck_or_update);
+
+        if marck_or_update == "cancel" {
+            println!("Canceling the process of removing a todo...");
+            return Ok(());
+        }
+        if marck_or_update == "m" {
+            println!("Canceling the process of removing a todo...");
+            let done_undone_todo_result = self.done_undone_todo()?;
+            return Ok(done_undone_todo_result);
+        }
+        if marck_or_update == "u" {
+            println!("Canceling the process of removing a todo...");
+            self.update_todo_description()?;
+            return Ok(());
+        }
+
+        let new_error = io::Error::new(io::ErrorKind::InvalidData, "wrong command");
+
+        Err(Box::new(new_error))
     }
 
     pub fn quit(&self) {
