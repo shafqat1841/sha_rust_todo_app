@@ -45,7 +45,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 file_handler.delete_todo()?;
             }
             "u" => {
-                file_handler.update_todo();
+                file_handler.update_todo()?;
             }
             "q" => {
                 // println!("Exiting the app. Goodbye!");
