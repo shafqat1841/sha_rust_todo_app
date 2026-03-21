@@ -44,7 +44,10 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             "a" => {
-                file_handler.add_todo();
+                let res = file_handler.add_todo();
+                if res.is_err() {
+                    println!("following error occured: {:?}", res.err())
+                }
             }
             "d" => {
                 let res = file_handler.delete_todo();
