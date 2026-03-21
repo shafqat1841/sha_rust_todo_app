@@ -40,7 +40,6 @@ impl Todos {
     }
 
     pub fn remove_todo(&mut self, id: u32) {
-        // self.todo_number = self.todo_number + 1;
         self.list.retain(|v|{
             v.id != id
         });

@@ -7,7 +7,6 @@ use std::{
 use crate::{app_constants::FILE_PATH, helper::get_user_input, todos_system::Todos};
 
 pub struct FileHandler {
-    // file: File,
     file_path: &'static Path,
 }
 
