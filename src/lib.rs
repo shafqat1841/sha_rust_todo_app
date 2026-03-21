@@ -3,20 +3,21 @@ mod app_default_texts;
 mod file_handler_system;
 mod helper;
 mod todos_system;
+mod whole_systems;
 
 use std::io;
 
-use crate::app_default_texts::DefaultTexts;
-use crate::file_handler_system::FileHandler;
+use crate::whole_systems::WholeSystem;
 use crate::helper::get_user_input;
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let mut file_handler = FileHandler::new()?;
-    let mut default_texts = DefaultTexts::new();
+
+    let mut whole_systems = WholeSystem::new()?;
+
 
     loop {
-        if !default_texts.initial_text_viewed {
-            println!("{}", default_texts.get_initial_text());
+        if !whole_systems.is_initial_text_viewed() {
+            println!("{}", whole_systems.get_initial_text());
         }
 
         let input = get_user_input();
@@ -25,7 +26,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             let input_ref = input.as_ref().err().unwrap();
             match input_ref.kind() {
                 io::ErrorKind::InvalidInput => {
-                    println!("{}", default_texts.show_empty_command_text())
+                    println!("{}", whole_systems.show_empty_command_text())
                 }
                 io::ErrorKind::Other => println!("Error reading input: {}", input_ref),
                 _ => println!("An unexpected error occurred: {}", input_ref),
@@ -35,36 +36,36 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         match input.unwrap().trim().to_lowercase().as_str() {
             "v" => {
-                let res = file_handler.view_all_todos();
+                let res = whole_systems.view_all_todos();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "a" => {
-                let res = file_handler.add_todo();
+                let res = whole_systems.add_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "d" => {
-                let res = file_handler.delete_todo();
+                let res = whole_systems.delete_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "u" => {
-                let res = file_handler.update_todo();
+                let res = whole_systems.update_todo();
 
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "q" => {
-                file_handler.quit();
+                println!("Exiting the app. Goodbye!");
                 break;
             }
             _ => {
-                println!("{}", default_texts.get_invalid_command_text());
+                println!("{}", whole_systems.get_invalid_command_text());
                 continue;
             }
         }

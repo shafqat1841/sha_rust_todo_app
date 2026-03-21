@@ -53,12 +53,11 @@ impl FileHandler {
             return Ok(());
         }
 
+        println!("");
         println!("All todos are the following:");
         println!("");
         for todo in todos.list {
-            println!("ID: {:#?}", todo.id);
-            println!("Description: {:#?}", todo.description);
-            println!("Is complete: {:#?}", todo.completed);
+            println!("ID: {:#?} | Description: {:#?} | Is complete: {:#?}", todo.id, todo.description, todo.completed);
             println!("");
         }
         Ok(())
@@ -75,6 +74,8 @@ impl FileHandler {
         todos.add_new_todo(description);
 
         let res = self.update_file_data(&todos)?;
+
+        println!("New todo is added.");
 
         Ok(res)
     }
@@ -187,9 +188,5 @@ impl FileHandler {
         let new_error = io::Error::new(io::ErrorKind::InvalidData, "wrong command");
 
         return Err(Box::new(new_error));
-    }
-
-    pub fn quit(&self) {
-        println!("Exiting the app. Goodbye!");
     }
 }
