@@ -24,195 +24,6 @@ impl FileHandler {
 
         Ok(FileHandler { file_path })
     }
-    pub fn view_all_todos(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let file = File::open(self.file_path)?;
-        let reader = BufReader::new(file);
-        let todo_data: Todos = serde_json::from_reader(reader)?;
-
-        if todo_data.list.is_empty() {
-            println!("No todos found. Please add some todos first.");
-            return Ok(());
-        }
-
-        println!("All todos are the following:");
-        println!("");
-        for todo in todo_data.list {
-            println!("ID: {:#?}", todo.id);
-            println!("Description: {:#?}", todo.description);
-            println!("Is complete: {:#?}", todo.completed);
-            println!("");
-        }
-        Ok(())
-    }
-
-    pub fn add_todo(&mut self) {
-        let mut initial_text_viewed = false;
-        loop {
-            if !initial_text_viewed {
-                println!("Please enter a description for the new todo:");
-                println!("Or type 'cancel' to go back:");
-                initial_text_viewed = true
-            }
-
-            let description_data = get_user_input();
-
-            println!("description_data: {:?}", description_data);
-
-            let description = match description_data {
-                Ok(value) => {
-                    if value == "cancel" {
-                        println!("Canceling the process of add a todo...");
-                        break;
-                    }
-                    value
-                }
-                Err(err) => {
-                    println!("the following error occured: {}", err);
-                    continue;
-                }
-            };
-
-            let file = match File::open(self.file_path) {
-                Ok(f) => f,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-            let reader = BufReader::new(file);
-            let todos_data: serde_json::Result<Todos> = serde_json::from_reader(reader);
-
-            let mut todos = match todos_data {
-                Ok(value) => value,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-
-            todos.add_new_todo(description);
-
-            let temp_path = self.file_path.with_extension("temp");
-            let temp_file_data = File::create(&temp_path);
-            let temp_file = match temp_file_data {
-                Ok(v) => v,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-            let writer = BufWriter::new(temp_file);
-            let serde_write_data = serde_json::to_writer_pretty(writer, &todos);
-
-            match serde_write_data {
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-                Ok(_) => {}
-            };
-
-            let rename_data = fs::rename(&temp_path, self.file_path);
-
-            match rename_data {
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-                Ok(_) => {}
-            };
-
-            break;
-        }
-    }
-
-    pub fn delete_todo(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.view_all_todos()?;
-
-        println!("Please enter the id of the todo which you want to delete:");
-        println!("Or type 'cancel' to go back:");
-
-        loop {
-            let id_result = get_user_input();
-
-            println!("id_result: {:?}", id_result);
-
-            let id = match id_result {
-                Ok(value) => {
-                    if value == "cancel" {
-                        println!("Canceling the process of removing a todo...");
-                        break;
-                    }
-                    let number = value.parse::<u32>();
-
-                    match number {
-                        Err(err) => {
-                            println!("the following error occured: {}", err);
-                            continue;
-                        }
-                        Ok(v) => v,
-                    }
-                }
-                Err(err) => {
-                    println!("the following error occured: {}", err);
-                    continue;
-                }
-            };
-
-            let file = match File::open(self.file_path) {
-                Ok(f) => f,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-            let reader = BufReader::new(file);
-            let todos_data: serde_json::Result<Todos> = serde_json::from_reader(reader);
-
-            let mut todos = match todos_data {
-                Ok(value) => value,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-
-            todos.remove_todo(id);
-
-            let temp_path = self.file_path.with_extension("temp");
-            let temp_file_data = File::create(&temp_path);
-            let temp_file = match temp_file_data {
-                Ok(v) => v,
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-            };
-            let writer = BufWriter::new(temp_file);
-            let serde_write_data = serde_json::to_writer_pretty(writer, &todos);
-
-            match serde_write_data {
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-                Ok(_) => {}
-            };
-
-            let rename_data = fs::rename(&temp_path, self.file_path);
-
-            match rename_data {
-                Err(e) => {
-                    println!("Error: {}", e);
-                    continue;
-                }
-                Ok(_) => {}
-            };
-
-            break;
-        }
-        Ok(())
-    }
 
     fn get_file_data(&self) -> Result<Todos, Box<dyn std::error::Error>> {
         let file = File::open(self.file_path)?;
@@ -233,6 +44,64 @@ impl FileHandler {
         let rename_data = fs::rename(&temp_path, self.file_path)?;
 
         Ok(rename_data)
+    }
+
+    pub fn view_all_todos(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let todos = self.get_file_data()?;
+
+        if todos.list.is_empty() {
+            println!("No todos found. Please add some todos first.");
+            return Ok(());
+        }
+
+        println!("All todos are the following:");
+        println!("");
+        for todo in todos.list {
+            println!("ID: {:#?}", todo.id);
+            println!("Description: {:#?}", todo.description);
+            println!("Is complete: {:#?}", todo.completed);
+            println!("");
+        }
+        Ok(())
+    }
+
+    pub fn add_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        println!("Please enter a description for the new todo:");
+        println!("Or type 'cancel' to go back:");
+
+        let description = get_user_input()?;
+
+        let mut todos = self.get_file_data()?;
+
+        todos.add_new_todo(description);
+
+        let res = self.update_file_data(&todos)?;
+
+        Ok(res)
+    }
+
+    pub fn delete_todo(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.view_all_todos()?;
+
+        println!("Please enter the id of the todo which you want to delete:");
+        println!("Or type 'cancel' to go back:");
+
+        let id = get_user_input()?;
+
+        if id == "cancel" {
+            println!("Canceling the process of removing a todo...");
+            return Ok(());
+        }
+
+        let id_number = id.parse::<u32>()?;
+
+        let mut todos = self.get_file_data()?;
+
+        todos.remove_todo(id_number);
+
+        let res = self.update_file_data(&todos)?;
+
+        Ok(res)
     }
 
     fn done_undone_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
