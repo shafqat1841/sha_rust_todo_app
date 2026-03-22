@@ -1,23 +1,24 @@
 mod app_constants;
-mod app_default_texts;
 mod file_handler_system;
 mod helper;
 mod todos_system;
-mod whole_systems;
 
 use std::io;
 
-use crate::whole_systems::WholeSystem;
-use crate::helper::get_user_input;
+use crate::file_handler_system::FileHandler;
+use crate::helper::{
+    get_initial_text, get_invalid_command_text, get_user_input, show_empty_command_text,
+};
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+    let mut file_handler = FileHandler::new()?;
 
-    let mut whole_systems = WholeSystem::new()?;
-
+    let mut initial_text_viewed = false;
 
     loop {
-        if !whole_systems.is_initial_text_viewed() {
-            println!("{}", whole_systems.get_initial_text());
+        if !initial_text_viewed {
+            println!("{}", get_initial_text());
+            initial_text_viewed = true
         }
 
         let input = get_user_input();
@@ -26,7 +27,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             let input_ref = input.as_ref().err().unwrap();
             match input_ref.kind() {
                 io::ErrorKind::InvalidInput => {
-                    println!("{}", whole_systems.show_empty_command_text())
+                    println!("{}", show_empty_command_text())
                 }
                 io::ErrorKind::Other => println!("Error reading input: {}", input_ref),
                 _ => println!("An unexpected error occurred: {}", input_ref),
@@ -36,25 +37,25 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         match input.unwrap().trim().to_lowercase().as_str() {
             "v" => {
-                let res = whole_systems.view_all_todos();
+                let res = file_handler.view_all_todos();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "a" => {
-                let res = whole_systems.add_todo();
+                let res = file_handler.add_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "d" => {
-                let res = whole_systems.delete_todo();
+                let res = file_handler.delete_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
             }
             "u" => {
-                let res = whole_systems.update_todo();
+                let res = file_handler.update_todo();
 
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
@@ -65,7 +66,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 break;
             }
             _ => {
-                println!("{}", whole_systems.get_invalid_command_text());
+                println!("{}", get_invalid_command_text());
                 continue;
             }
         }
