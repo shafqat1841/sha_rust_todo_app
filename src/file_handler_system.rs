@@ -57,7 +57,10 @@ impl FileHandler {
         println!("All todos are the following:");
         println!("");
         for todo in todos.list {
-            println!("ID: {:#?} | Description: {:#?} | Is complete: {:#?}", todo.id, todo.description, todo.completed);
+            println!(
+                "ID: {:#?} | Description: {:#?} | Is complete: {:#?}",
+                todo.id, todo.description, todo.completed
+            );
             println!("");
         }
         Ok(())
@@ -69,13 +72,19 @@ impl FileHandler {
 
         let description = get_user_input()?;
 
+        if description == "cancel" {
+            println!("The process is canceled.");
+
+            return Ok(());
+        }
+
         let mut todos = self.get_file_data()?;
 
         todos.add_new_todo(description);
 
         let res = self.update_file_data(&todos)?;
 
-        println!("New todo is added.");
+        println!("The process is done.");
 
         Ok(res)
     }
@@ -89,7 +98,8 @@ impl FileHandler {
         let id = get_user_input()?;
 
         if id == "cancel" {
-            println!("Canceling the process of removing a todo...");
+            println!("The process is canceled.");
+
             return Ok(());
         }
 
@@ -100,6 +110,8 @@ impl FileHandler {
         todos.remove_todo(id_number);
 
         let res = self.update_file_data(&todos)?;
+
+        println!("The process is done.");
 
         Ok(res)
     }
@@ -113,7 +125,8 @@ impl FileHandler {
         let done_or_undone_id = get_user_input()?;
 
         if done_or_undone_id == "cancel" {
-            println!("Canceling the process of removing a todo...");
+            println!("The process is canceled.");
+
             return Ok(());
         }
 
@@ -124,6 +137,8 @@ impl FileHandler {
         todos.done_undone_todo(id_number);
 
         let res = self.update_file_data(&todos)?;
+
+        println!("The process is done.");
 
         Ok(res)
     }
@@ -137,7 +152,8 @@ impl FileHandler {
         let new_description_id = get_user_input()?;
 
         if new_description_id == "cancel" {
-            println!("Canceling the process of removing a todo...");
+            println!("The process is canceled.");
+
             return Ok(());
         }
 
@@ -149,7 +165,8 @@ impl FileHandler {
         let new_description = get_user_input()?;
 
         if new_description == "cancel" {
-            println!("Canceling the process of removing a todo...");
+            println!("The process is canceled.");
+
             return Ok(());
         }
 
@@ -158,6 +175,8 @@ impl FileHandler {
         todos.update_todo_description(id_number, new_description.as_str());
 
         let res = self.update_file_data(&todos)?;
+
+        println!("The process is done.");
 
         Ok(res)
     }
@@ -171,16 +190,15 @@ impl FileHandler {
         println!("marck_or_update: {:?}", marck_or_update);
 
         if marck_or_update == "cancel" {
-            println!("Canceling the process of removing a todo...");
+            println!("The process is canceled.");
+
             return Ok(());
         }
         if marck_or_update == "m" {
-            println!("Canceling the process of removing a todo...");
             let res = self.done_undone_todo()?;
             return Ok(res);
         }
         if marck_or_update == "u" {
-            println!("Canceling the process of removing a todo...");
             let res = self.update_todo_description()?;
             return Ok(res);
         }
