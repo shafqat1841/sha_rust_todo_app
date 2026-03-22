@@ -40,13 +40,10 @@ impl Todos {
     }
 
     pub fn remove_todo(&mut self, id: u32) {
-        self.list.retain(|v|{
-            v.id != id
-        });
+        self.list.retain(|v| v.id != id);
     }
 
     pub fn done_undone_todo(&mut self, id: u32) {
-
         for element in self.list.iter_mut() {
             if element.id == id {
                 let complete_status = element.completed;
@@ -55,11 +52,9 @@ impl Todos {
         }
     }
 
-    pub fn update_todo_description(&mut self, new_id: u32, new_description: &str ){
-        for ele in self.list.iter_mut() {
-            if ele.id == new_id {
-                ele.description = new_description.to_string()
-            }
+    pub fn update_todo_description(&mut self, new_id: u32, new_description: &str) {
+        if let Some(todo) = self.list.iter_mut().find(|ele| ele.id == new_id) {
+            todo.description = new_description.to_string()
         }
     }
 }
