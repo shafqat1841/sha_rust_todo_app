@@ -7,20 +7,15 @@ use std::io;
 
 use crate::file_handler_system::FileHandler;
 use crate::helper::{
-    get_initial_text, get_invalid_command_text, get_user_input, show_empty_command_text,
+    get_default_texts, get_initial_text, get_invalid_command_text, get_user_input,
+    show_empty_command_text,
 };
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut file_handler = FileHandler::new()?;
 
-    let mut initial_text_viewed = false;
-
+    println!("{}", get_initial_text());
     loop {
-        if !initial_text_viewed {
-            println!("{}", get_initial_text());
-            initial_text_viewed = true
-        }
-
         let input = get_user_input();
 
         if input.is_err() {
@@ -41,18 +36,21 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
+                get_default_texts();
             }
             "a" => {
                 let res = file_handler.add_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
+                get_default_texts();
             }
             "d" => {
                 let res = file_handler.delete_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
+                get_default_texts();
             }
             "u" => {
                 let res = file_handler.update_todo();
@@ -60,6 +58,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
+                get_default_texts();
             }
             "q" => {
                 println!("Exiting the app. Goodbye!");
