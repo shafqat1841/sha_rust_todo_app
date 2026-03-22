@@ -36,21 +36,21 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
-                get_default_texts();
+                println!("{}",get_default_texts());
             }
             "a" => {
                 let res = file_handler.add_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
-                get_default_texts();
+                 println!("{}",get_default_texts());
             }
             "d" => {
                 let res = file_handler.delete_todo();
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
-                get_default_texts();
+                 println!("{}",get_default_texts());
             }
             "u" => {
                 let res = file_handler.update_todo();
@@ -58,7 +58,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
                 if res.is_err() {
                     println!("following error occured: {:?}", res.err())
                 }
-                get_default_texts();
+                 println!("{}",get_default_texts());
             }
             "q" => {
                 println!("Exiting the app. Goodbye!");
