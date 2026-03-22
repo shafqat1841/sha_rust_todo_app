@@ -1,22 +1,22 @@
 use std::{
     fs::{self, File},
     io::{self, BufReader, BufWriter},
-    path::Path,
+    path::{ PathBuf},
 };
 
 use crate::{app_constants::FILE_PATH, helper::get_user_input, todos_system::Todos};
 
 pub struct FileHandler {
-    file_path: &'static Path,
+    file_path: PathBuf,
 }
 
 impl FileHandler {
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let file_path = Path::new(FILE_PATH);
+        let file_path = PathBuf::from(FILE_PATH);
 
-        if !file_path.exists() || fs::metadata(file_path)?.len() == 0 {
+        if !file_path.exists() || fs::metadata::<&PathBuf>(&file_path)?.len() == 0 {
             let json_value = Todos::new();
-            let file = File::create(file_path)?;
+            let file = File::create(&file_path)?;
             let writer = BufWriter::new(file);
             serde_json::to_writer_pretty(writer, &json_value)?;
         }
@@ -25,7 +25,7 @@ impl FileHandler {
     }
 
     fn get_file_data(&self) -> Result<Todos, Box<dyn std::error::Error>> {
-        let file = File::open(self.file_path)?;
+        let file = File::open(&self.file_path)?;
 
         let reader = BufReader::new(file);
         let todos: Todos = serde_json::from_reader(reader)?;
@@ -40,7 +40,7 @@ impl FileHandler {
         let writer = BufWriter::new(temp_file);
         serde_json::to_writer_pretty(writer, data)?;
 
-        let rename_data = fs::rename(&temp_path, self.file_path)?;
+        let rename_data = fs::rename(&temp_path, &self.file_path)?;
 
         Ok(rename_data)
     }
