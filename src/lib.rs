@@ -2,13 +2,12 @@ mod app_constants;
 mod commands;
 mod file_handler_system;
 mod helper;
+mod todos_erros;
 mod todos_system;
-
-use std::io;
 
 use crate::commands::AppCommands;
 use crate::file_handler_system::FileHandler;
-use crate::helper::{get_default_texts, get_initial_text, get_user_input, show_empty_command_text};
+use crate::helper::{get_default_texts, get_initial_text, get_user_input};
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut file_handler = FileHandler::new()?;
@@ -19,13 +18,14 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 
         let input_string = match input {
             Ok(val) => val,
-            Err(e) => {
-                match e.kind() {
-                    io::ErrorKind::InvalidInput => {
-                        println!("{}", show_empty_command_text())
+            Err(err) => {
+                println!("{}", err);
+
+                match err {
+                    todos_erros::TodosErrors::EmptyCommandError => {
+                        println!("{}", get_default_texts());
                     }
-                    io::ErrorKind::Other => println!("Error reading input: {}", e),
-                    _ => println!("An unexpected error occurred: {}", e),
+                    _ => {}
                 }
                 continue;
             }
