@@ -21,15 +21,14 @@ pub fn get_initial_text() -> String {
 
 pub fn get_user_input() -> Result<String, TodosErrors> {
     let mut input: String = String::new();
-    let input_data = io::stdin().read_line(&mut input);
 
-    let input_data_ref = input_data.as_ref();
+    io::stdin()
+        .read_line(&mut input)
+        .map_err(TodosErrors::IOError)?;
 
-    if input_data.is_err() {
-        return Err(TodosErrors::IOError(input_data.err().unwrap()));
-    }
+    let trimmed = input.trim();
 
-    if input_data_ref.is_ok() && *input_data_ref.unwrap() == 2 {
+    if trimmed.is_empty() {
         return Err(TodosErrors::EmptyCommandError);
     }
 
