@@ -1,7 +1,7 @@
 use core::fmt;
 use std::io;
 
-use crate::helper::get_invalid_command_text;
+use crate::app_constants::{EMPTY_COMMAND_TEXT, INVALID_COMMAND};
 
 #[derive(Debug)]
 pub enum TodosErrors {
@@ -13,9 +13,9 @@ pub enum TodosErrors {
 impl fmt::Display for TodosErrors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TodosErrors::EmptyCommandError => write!(f, "Empty command entered"),
+            TodosErrors::EmptyCommandError => write!(f, "{}", EMPTY_COMMAND_TEXT),
+            TodosErrors::WrongCommandError => write!(f, "{}", INVALID_COMMAND),
             TodosErrors::IOError(err) => write!(f, "Error reading input: {}", err),
-            TodosErrors::WrongCommandError => write!(f, "{}", get_invalid_command_text())
         }
     }
 }
