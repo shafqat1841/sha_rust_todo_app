@@ -22,9 +22,7 @@ pub fn get_initial_text() -> String {
 pub fn get_user_input() -> Result<String, TodosErrors> {
     let mut input: String = String::new();
 
-    io::stdin()
-        .read_line(&mut input)
-        .map_err(TodosErrors::IOError)?;
+    io::stdin().read_line(&mut input)?;
 
     let trimmed_input = input.trim();
 

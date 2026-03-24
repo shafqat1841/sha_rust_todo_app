@@ -8,8 +8,9 @@ mod todos_system;
 use crate::commands::AppCommands;
 use crate::file_handler_system::FileHandler;
 use crate::helper::{get_default_texts, get_initial_text, get_user_input};
+use crate::todos_erros::TodosErrors;
 
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+pub fn run() -> Result<(), TodosErrors> {
     let mut file_handler = FileHandler::new()?;
 
     println!("{}", get_initial_text());

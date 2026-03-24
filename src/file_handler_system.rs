@@ -1,17 +1,19 @@
 use std::{
     fs::{self, File},
-    io::{self, BufReader, BufWriter},
-    path::{ PathBuf},
+    io::{BufReader, BufWriter},
+    path::PathBuf,
 };
 
-use crate::{app_constants::FILE_PATH, helper::get_user_input, todos_system::Todos};
+use crate::{
+    app_constants::FILE_PATH, helper::get_user_input, todos_erros::TodosErrors, todos_system::Todos,
+};
 
 pub struct FileHandler {
     file_path: PathBuf,
 }
 
 impl FileHandler {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new() -> Result<Self, TodosErrors> {
         let file_path = PathBuf::from(FILE_PATH);
 
         if !file_path.exists() || fs::metadata::<&PathBuf>(&file_path)?.len() == 0 {
@@ -24,7 +26,7 @@ impl FileHandler {
         Ok(FileHandler { file_path })
     }
 
-    fn get_file_data(&self) -> Result<Todos, Box<dyn std::error::Error>> {
+    fn get_file_data(&self) -> Result<Todos, TodosErrors> {
         let file = File::open(&self.file_path)?;
 
         let reader = BufReader::new(file);
@@ -33,7 +35,7 @@ impl FileHandler {
         Ok(todos)
     }
 
-    fn update_file_data(&self, data: &Todos) -> Result<(), Box<dyn std::error::Error>> {
+    fn update_file_data(&self, data: &Todos) -> Result<(), TodosErrors> {
         let temp_path = self.file_path.with_extension("temp");
         let temp_file = File::create(&temp_path)?;
 
@@ -45,7 +47,7 @@ impl FileHandler {
         Ok(rename_data)
     }
 
-    pub fn view_all_todos(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn view_all_todos(&self) -> Result<(), TodosErrors> {
         let todos = self.get_file_data()?;
 
         if todos.list.is_empty() {
@@ -66,7 +68,7 @@ impl FileHandler {
         Ok(())
     }
 
-    pub fn add_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn add_todo(&mut self) -> Result<(), TodosErrors> {
         println!("Please enter a description for the new todo:");
         println!("Or type 'cancel' to go back:");
 
@@ -89,7 +91,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    pub fn delete_todo(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete_todo(&self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Please enter the id of the todo which you want to delete:");
@@ -116,7 +118,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    fn done_undone_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn done_undone_todo(&mut self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Enter the Id whose completed status you want to change");
@@ -143,7 +145,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    fn update_todo_description(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn update_todo_description(&mut self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Enter the Id whose description you want to change:");
@@ -181,7 +183,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    pub fn update_todo(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn update_todo(&mut self) -> Result<(), TodosErrors> {
         println!("If you want a todo to be marked as completed or uncompleted then press m:");
         println!("If you want update a todo description press u:");
         println!("Or type 'cancel' to go back:");
@@ -203,8 +205,6 @@ impl FileHandler {
             return Ok(res);
         }
 
-        let new_error = io::Error::new(io::ErrorKind::InvalidData, "wrong command");
-
-        return Err(Box::new(new_error));
+        return Err(TodosErrors::WrongCommandError);
     }
 }
