@@ -26,11 +26,11 @@ pub fn get_user_input() -> Result<String, TodosErrors> {
         .read_line(&mut input)
         .map_err(TodosErrors::IOError)?;
 
-    let trimmed = input.trim();
+    let trimmed_input = input.trim();
 
-    if trimmed.is_empty() {
+    if trimmed_input.is_empty() {
         return Err(TodosErrors::EmptyCommandError);
     }
 
-    Ok(input.trim().to_string())
+    Ok(trimmed_input.to_string())
 }
