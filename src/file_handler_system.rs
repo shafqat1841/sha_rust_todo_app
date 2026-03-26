@@ -5,7 +5,8 @@ use std::{
 };
 
 use crate::{
-    app_constants::FILE_PATH, helper::get_user_input, todos_erros::TodosErrors, todos_system::Todos,
+    app_constants::FILE_PATH, helper::get_user_input,
+    marck_or_update_commands::MarkOrUpdateCommands, todos_erros::TodosErrors, todos_system::Todos,
 };
 
 pub struct FileHandler {
@@ -188,23 +189,22 @@ impl FileHandler {
         println!("If you want update a todo description press u:");
         println!("Or type 'cancel' to go back:");
 
-        let marck_or_update = get_user_input()?;
-        println!("marck_or_update: {:?}", marck_or_update);
+        let marck_or_update: MarkOrUpdateCommands = get_user_input()?.parse()?;
 
-        if marck_or_update == "cancel" {
-            println!("The process is canceled.");
+        match marck_or_update {
+            MarkOrUpdateCommands::Cancel => {
+                println!("The process is canceled.");
 
-            return Ok(());
+                return Ok(());
+            }
+            MarkOrUpdateCommands::Mark => {
+                let res = self.done_undone_todo()?;
+                return Ok(res);
+            }
+            MarkOrUpdateCommands::Update => {
+                let res = self.update_todo_description()?;
+                return Ok(res);
+            }
         }
-        if marck_or_update == "m" {
-            let res = self.done_undone_todo()?;
-            return Ok(res);
-        }
-        if marck_or_update == "u" {
-            let res = self.update_todo_description()?;
-            return Ok(res);
-        }
-
-        return Err(TodosErrors::WrongCommandError);
     }
 }
