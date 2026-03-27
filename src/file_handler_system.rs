@@ -134,8 +134,6 @@ impl FileHandler {
 
         let id_number = done_or_undone_id.parse::<u32>()?;
 
-        // let mut todos = self.get_file_data()?;
-
         self.todos_data.done_undone_todo(id_number);
 
         let res = self.update_file_data()?;
