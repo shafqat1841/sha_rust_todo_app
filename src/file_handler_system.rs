@@ -51,7 +51,6 @@ impl FileHandler {
     }
 
     pub fn view_all_todos(&self) -> Result<(), TodosErrors> {
-
         if self.todos_data.list.is_empty() {
             println!("No todos found. Please add some todos first.");
             return Ok(());
@@ -170,7 +169,8 @@ impl FileHandler {
             return Ok(());
         }
 
-        self.todos_data.update_todo_description(id_number, new_description.as_str());
+        self.todos_data
+            .update_todo_description(id_number, new_description.as_str());
 
         let res = self.update_file_data()?;
 
