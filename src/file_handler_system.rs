@@ -5,8 +5,7 @@ use std::{
 };
 
 use crate::{
-    app_constants::FILE_PATH, helper::get_user_input,
-    marck_or_update_commands::MarkOrUpdateCommands, todos_erros::TodosErrors, todos_system::Todos,
+    app_constants::FILE_PATH, helper::get_user_input, todos_erros::TodosErrors, todos_system::Todos,
 };
 
 pub struct FileHandler {
@@ -117,7 +116,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    fn done_undone_todo(&mut self) -> Result<(), TodosErrors> {
+    pub fn done_undone_todo(&mut self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Enter the Id whose completed status you want to change");
@@ -142,7 +141,7 @@ impl FileHandler {
         Ok(res)
     }
 
-    fn update_todo_description(&mut self) -> Result<(), TodosErrors> {
+    pub fn update_todo_description(&mut self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Enter the Id whose description you want to change:");
@@ -177,29 +176,5 @@ impl FileHandler {
         println!("The process is done.");
 
         Ok(res)
-    }
-
-    pub fn update_todo(&mut self) -> Result<(), TodosErrors> {
-        println!("If you want a todo to be marked as completed or uncompleted then press m:");
-        println!("If you want update a todo description press u:");
-        println!("Or type 'cancel' to go back:");
-
-        let marck_or_update: MarkOrUpdateCommands = get_user_input()?.parse()?;
-
-        match marck_or_update {
-            MarkOrUpdateCommands::Cancel => {
-                println!("The process is canceled.");
-
-                return Ok(());
-            }
-            MarkOrUpdateCommands::Mark => {
-                let res = self.done_undone_todo()?;
-                return Ok(res);
-            }
-            MarkOrUpdateCommands::Update => {
-                let res = self.update_todo_description()?;
-                return Ok(res);
-            }
-        }
     }
 }

@@ -9,6 +9,7 @@ mod todos_system;
 use crate::commands::AppCommands;
 use crate::file_handler_system::FileHandler;
 use crate::helper::{get_default_texts, get_initial_text, get_user_input};
+use crate::marck_or_update_commands::MarkOrUpdateCommands;
 use crate::todos_erros::TodosErrors;
 
 pub fn run() -> Result<(), TodosErrors> {
@@ -16,7 +17,6 @@ pub fn run() -> Result<(), TodosErrors> {
 
     println!("{}", get_initial_text());
     loop {
-
         let input = get_user_input();
 
         let input_string = match input {
@@ -63,11 +63,26 @@ pub fn run() -> Result<(), TodosErrors> {
                     println!("following error occured: {:?}", res.err())
                 }
             }
-            AppCommands::Update => {
-                let res = file_handler.update_todo();
+            AppCommands::Update(sub_cmd) => {
 
-                if res.is_err() {
-                    println!("following error occured: {:?}", res.err())
+                match sub_cmd {
+                    MarkOrUpdateCommands::Cancel => {
+                        println!("The process is canceled.");
+
+                        return Ok(());
+                    }
+                    MarkOrUpdateCommands::Mark => {
+                        let res = file_handler.done_undone_todo().unwrap_or_else(|err|{
+                            println!("following error occured: {:?}", err);
+                        });
+                        return Ok(res);
+                    }
+                    MarkOrUpdateCommands::Update => {
+                        let res = file_handler.update_todo_description().unwrap_or_else(|err|{
+                            println!("following error occured: {:?}", err);
+                        });
+                        return Ok(res);
+                    }
                 }
             }
             AppCommands::Quit => {
