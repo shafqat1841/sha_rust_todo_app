@@ -11,37 +11,39 @@ use crate::{
 
 pub struct FileHandler {
     file_path: PathBuf,
+    todos_data: Todos,
 }
 
 impl FileHandler {
     pub fn new() -> Result<Self, TodosErrors> {
         let file_path = PathBuf::from(FILE_PATH);
 
+        let mut todos_data: Todos = Todos::new();
+
         if !file_path.exists() || fs::metadata::<&PathBuf>(&file_path)?.len() == 0 {
             let json_value = Todos::new();
             let file = File::create(&file_path)?;
             let writer = BufWriter::new(file);
             serde_json::to_writer_pretty(writer, &json_value)?;
+        } else {
+            let file = File::open(&file_path)?;
+
+            let reader = BufReader::new(file);
+            todos_data = serde_json::from_reader(reader)?;
         }
 
-        Ok(FileHandler { file_path })
+        Ok(FileHandler {
+            file_path,
+            todos_data,
+        })
     }
 
-    fn get_file_data(&self) -> Result<Todos, TodosErrors> {
-        let file = File::open(&self.file_path)?;
-
-        let reader = BufReader::new(file);
-        let todos: Todos = serde_json::from_reader(reader)?;
-
-        Ok(todos)
-    }
-
-    fn update_file_data(&self, data: &Todos) -> Result<(), TodosErrors> {
+    fn update_file_data(&self) -> Result<(), TodosErrors> {
         let temp_path = self.file_path.with_extension("temp");
         let temp_file = File::create(&temp_path)?;
 
         let writer = BufWriter::new(temp_file);
-        serde_json::to_writer_pretty(writer, data)?;
+        serde_json::to_writer_pretty(writer, &self.todos_data)?;
 
         let rename_data = fs::rename(&temp_path, &self.file_path)?;
 
@@ -49,9 +51,8 @@ impl FileHandler {
     }
 
     pub fn view_all_todos(&self) -> Result<(), TodosErrors> {
-        let todos = self.get_file_data()?;
 
-        if todos.list.is_empty() {
+        if self.todos_data.list.is_empty() {
             println!("No todos found. Please add some todos first.");
             return Ok(());
         }
@@ -59,7 +60,7 @@ impl FileHandler {
         println!("");
         println!("All todos are the following:");
         println!("");
-        for todo in todos.list {
+        for todo in self.todos_data.list.iter() {
             println!(
                 "ID: {:#?} | Description: {:#?} | Is complete: {:#?}",
                 todo.id, todo.description, todo.completed
@@ -81,18 +82,16 @@ impl FileHandler {
             return Ok(());
         }
 
-        let mut todos = self.get_file_data()?;
+        self.todos_data.add_new_todo(description);
 
-        todos.add_new_todo(description);
-
-        let res = self.update_file_data(&todos)?;
+        let res = self.update_file_data()?;
 
         println!("The process is done.");
 
         Ok(res)
     }
 
-    pub fn delete_todo(&self) -> Result<(), TodosErrors> {
+    pub fn delete_todo(&mut self) -> Result<(), TodosErrors> {
         self.view_all_todos()?;
 
         println!("Please enter the id of the todo which you want to delete:");
@@ -108,11 +107,11 @@ impl FileHandler {
 
         let id_number = id.parse::<u32>()?;
 
-        let mut todos = self.get_file_data()?;
+        // let mut todos = self.get_file_data()?;
 
-        todos.remove_todo(id_number);
+        self.todos_data.remove_todo(id_number);
 
-        let res = self.update_file_data(&todos)?;
+        let res = self.update_file_data()?;
 
         println!("The process is done.");
 
@@ -135,11 +134,11 @@ impl FileHandler {
 
         let id_number = done_or_undone_id.parse::<u32>()?;
 
-        let mut todos = self.get_file_data()?;
+        // let mut todos = self.get_file_data()?;
 
-        todos.done_undone_todo(id_number);
+        self.todos_data.done_undone_todo(id_number);
 
-        let res = self.update_file_data(&todos)?;
+        let res = self.update_file_data()?;
 
         println!("The process is done.");
 
@@ -173,11 +172,9 @@ impl FileHandler {
             return Ok(());
         }
 
-        let mut todos = self.get_file_data()?;
+        self.todos_data.update_todo_description(id_number, new_description.as_str());
 
-        todos.update_todo_description(id_number, new_description.as_str());
-
-        let res = self.update_file_data(&todos)?;
+        let res = self.update_file_data()?;
 
         println!("The process is done.");
 
