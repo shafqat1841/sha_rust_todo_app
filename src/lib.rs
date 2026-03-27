@@ -2,9 +2,9 @@ mod app_constants;
 mod commands;
 mod file_handler_system;
 mod helper;
+mod marck_or_update_commands;
 mod todos_erros;
 mod todos_system;
-mod marck_or_update_commands;
 
 use crate::commands::AppCommands;
 use crate::file_handler_system::FileHandler;
@@ -16,6 +16,7 @@ pub fn run() -> Result<(), TodosErrors> {
 
     println!("{}", get_initial_text());
     loop {
+
         let input = get_user_input();
 
         let input_string = match input {
